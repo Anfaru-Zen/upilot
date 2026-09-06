@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 160">
+  <g fill="none" stroke="#ffffff" stroke-opacity=".35">
+    <circle cx="140" cy="80" r="20"/>
+    <circle cx="140" cy="80" r="40" stroke-dasharray="4 5"/>
+    <circle cx="140" cy="80" r="62" stroke-opacity=".2"/>
+  </g>
+  <g fill="#ffffff">
+    <circle cx="140" cy="18" r="4"/>
+    <circle cx="182" cy="108" r="3" fill-opacity=".8"/>
+    <circle cx="100" cy="122" r="2.5" fill-opacity=".6"/>
+  </g>
+  <g fill="#a5f3fc">
+    <circle cx="162" cy="48" r="5"/>
+    <circle cx="118" cy="102" r="3.5" fill-opacity=".8"/>
+  </g>
+  <text x="140" y="98" font-family="system-ui,sans-serif" font-size="44" font-weight="800" fill="#ffffff" text-anchor="middle">U</text>
+</svg>
