@@ -10,9 +10,13 @@ Buka `index.html` langsung, atau:
 npx serve .
 ```
 
-## Deploy Cloudflare Pages
+## Deploy Cloudflare Workers Static Assets
 
-Connect repo `upilot` → Build command kosong, Output `/`.
+```bash
+npx wrangler deploy
+```
+
+Tanpa build step. `index.html` disajikan sebagai root URL.
 
 ## Data
 
