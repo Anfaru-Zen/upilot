@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Upilot — AI Account Hub</title>
+<link rel="icon" href="favicon.svg" />
+<script src="https://cdn.tailwindcss.com"></script>
+<style>@media (prefers-color-scheme: dark){body{background:#0f172a;color:#e2e8f0}.card{background:#1e293b!important;border-color:#334155!important}.muted{color:#94a3b8!important}dialog{background:#1e293b;color:#e2e8f0}input{color-scheme:dark}}</style>
+</head>
+<body class="bg-slate-100 text-slate-900 min-h-screen">
+<div class="max-w-4xl mx-auto px-4 py-8">
+  <header class="flex items-center justify-between mb-2">
+    <h1 class="text-2xl font-bold">Upilot</h1>
+    <button id="addBtn" class="bg-black text-white rounded-lg px-4 py-2 text-sm hover:opacity-80">+ Add Account</button>
+  </header>
+  <p class="muted text-slate-500 text-sm mb-6">Your AI platforms in one place. Launcher, bukan session isolator.</p>
+  <h2 class="font-semibold mb-3">Your Accounts</h2>
+  <div id="grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+  <div id="empty" class="hidden text-center py-16">
+    <p class="font-medium">No AI accounts yet</p>
+    <p class="muted text-slate-500 text-sm mb-4">Add your first platform to get started.</p>
+    <button onclick="document.getElementById('addBtn').click()" class="bg-black text-white rounded-lg px-4 py-2 text-sm">+ Add Account</button>
+  </div>
+</div>
+
+<dialog id="addDialog" class="rounded-xl p-6 w-80">
+  <h3 class="font-bold mb-4">Add Account</h3>
+  <p class="text-sm font-medium mb-2">Platform</p>
+  <div id="provOpts" class="space-y-1 mb-4 text-sm"></div>
+  <label class="text-sm font-medium">Account name</label>
+  <input id="accName" class="w-full border rounded-lg px-3 py-2 mt-1 mb-4 text-sm" placeholder="My Main Account" />
+  <div class="flex justify-end gap-2">
+    <button id="cancelAdd" class="px-4 py-2 text-sm rounded-lg border">Cancel</button>
+    <button id="saveAdd" class="px-4 py-2 text-sm rounded-lg bg-black text-white">Add Account</button>
+  </div>
+</dialog>
+
+<script>
+const PROVIDERS = {
+  "google-flow": { name: "Google Flow", url: "https://flow.google" },
+  "dola": { name: "Dola", url: "https://www.dola.com" },
+  "migoo": { name: "Migoo", url: "https://migoo.ai" },
+};
+const KEY = "aihub.accounts";
+const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch { return []; } };
+const save = (a) => localStorage.setItem(KEY, JSON.stringify(a));
+let accounts = load();
+
+const grid = document.getElementById("grid"), empty = document.getElementById("empty");
+function render() {
+  grid.innerHTML = "";
+  empty.classList.toggle("hidden", accounts.length > 0);
+  accounts.forEach(a => {
+    const p = PROVIDERS[a.provider];
+    const el = document.createElement("div");
+    el.className = "card bg-white border rounded-xl p-4";
+    el.innerHTML = `<div class="flex items-center gap-2 mb-1"><span class="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center font-bold">${p.name[0]}</span><div><p class="text-sm font-semibold">${p.name}</p><p class="text-sm">${a.name}</p></div></div>
+      <p class="muted text-xs text-slate-500 mb-3">${a.lastOpenedAt ? "Last opened " + new Date(a.lastOpenedAt).toLocaleString() : "Never opened"}</p>
+      <div class="flex gap-2"><button data-act="open" class="flex-1 bg-black text-white text-sm rounded-lg py-1.5">Launch</button><button data-act="menu" class="border rounded-lg px-3 text-sm">•••</button></div>`;
+    el.querySelector('[data-act="open"]').onclick = () => openAcc(a.id);
+    el.querySelector('[data-act="menu"]').onclick = () => menuAcc(a.id);
+    grid.appendChild(el);
+  });
+}
+// ponytail: 1 named tab reuse, multi-tab hanya jika user protes
+function openAcc(id) {
+  const a = accounts.find(x => x.id === id);
+  window.open(PROVIDERS[a.provider].url, "aihub-provider-window");
+  a.lastOpenedAt = new Date().toISOString();
+  save(accounts); render();
+}
+function menuAcc(id) {
+  const a = accounts.find(x => x.id === id);
+  const c = prompt(`"${a.name}" — ketik: rename / delete / batal`, "batal");
+  if (!c) return;
+  if (c.toLowerCase().startsWith("rename")) {
+    const n = prompt("New name:", a.name);
+    if (n && n.trim()) { a.name = n.trim(); save(accounts); render(); }
+  } else if (c.toLowerCase().startsWith("delete")) {
+    if (confirm(`Delete "${a.name}"?\nThis removes the shortcut from Upilot. It does not delete your account from ${PROVIDERS[a.provider].name}.`)) {
+      accounts = accounts.filter(x => x.id !== id); save(accounts); render();
+    }
+  }
+}
+const dlg = document.getElementById("addDialog");
+document.getElementById("provOpts").innerHTML = Object.entries(PROVIDERS).map(([id, p], i) =>
+  `<label class="flex gap-2 items-center"><input type="radio" name="prov" value="${id}" ${i === 0 ? "checked" : ""}/> ${p.name}</label>`).join("");
+document.getElementById("addBtn").onclick = () => dlg.showModal();
+document.getElementById("cancelAdd").onclick = () => dlg.close();
+document.getElementById("saveAdd").onclick = () => {
+  const provider = document.querySelector('input[name="prov"]:checked').value;
+  const name = document.getElementById("accName").value.trim() || PROVIDERS[provider].name;
+  accounts.push({ id: "a" + Date.now().toString(36), provider, name, createdAt: new Date().toISOString() });
+  save(accounts); render();
+  document.getElementById("accName").value = "";
+  dlg.close();
+};
+render();
+</script>
+</body>
+</html>
