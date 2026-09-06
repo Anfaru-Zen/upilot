@@ -7,7 +7,7 @@ Launcher statis untuk Google Flow, Dola, Migoo. Tanpa backend, tanpa password/to
 Buka `index.html` langsung, atau:
 
 ```bash
-npx serve .
+npx serve public
 ```
 
 ## Deploy Cloudflare Workers Static Assets
